@@ -1,29 +1,25 @@
-import { AppBar, Box, InputBase, Paper, Typography } from "@mui/material";
-import { Theme, styled } from "@mui/material/styles";
+import { Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-export const StyledAppBar = styled(AppBar)(({ theme }: { theme: Theme }) => ({
-    backgroundColor: theme.palette.primary.main,
-    height: "10vh",
-    justifyContent: "center",
+export const HeaderContainer = styled("div")(() => ({
+    display: "grid",
+    borderBottom: "1px solid red",
 }));
-  
-export const SearchContainer = styled(Box)(() => ({
-    flex: 1,
+
+export const HeaderWrapper = styled("div")(() => ({
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-}));
-  
-export const SearchInput = styled(InputBase)(({ theme }: { theme: Theme }) => ({
-    backgroundColor: theme.palette.background.paper,
-    padding: "0 10px",
-    width: "100%",
-    maxWidth: "400px",
-    boxShadow: theme.shadows[1],
 }));
 
 export const PageTitle = styled(Typography)(() => ({
+    textAlign: "center",
+    width: "94%",
     flexGrow: 0.2,
-    fontWeight: "bold",
     cursor: "pointer",
+    color: "black",
+}));
+
+export const PageMenuContainer = styled("div")(() => ({
+    width:"5%",
+    display:"grid",
+    justifyContent: "end",
 }));

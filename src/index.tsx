@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import theme from './theme';
 import { ThemeProvider } from '@mui/material';
@@ -16,13 +14,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
       <QueryClientProvider client={queryClient}>        
           <ThemeProvider theme={theme}>
             <App />
           </ThemeProvider>
       </QueryClientProvider>
-    </Provider>
   </React.StrictMode>
 );
 

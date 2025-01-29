@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
-import MovieSearchContainer from './components/MovieSearchContainer/MovieSearchContainer';
-import FavoritesView from './components/FavoritesView/FavoritesView';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CssBaseline } from '@mui/material';
 import Header from './components/Header/Header';
+import HouseDetails from './components/HouseDetails/HouseDetails';
+import HouseListPage from './components/HouseListPage/HouseListPage';
 
 function App() {
   return (
@@ -10,8 +10,8 @@ function App() {
       <CssBaseline />
       <Header />
       <Routes>
-        <Route path="/" element={<MovieSearchContainer />} />
-        <Route path="/favorites" element={<FavoritesView />} />
+        <Route path="/" element={< HouseListPage />} />
+        <Route path="/house-details" element={<HouseDetails />} />
       </Routes>
     </BrowserRouter>
   );

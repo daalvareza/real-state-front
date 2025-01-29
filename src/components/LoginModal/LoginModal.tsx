@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { login, signUp } from "../../services/favoriteService";
-import { FloatingLogin, StyledBackdrop } from "./LoginModal.styled";
-import { useDispatch } from "react-redux";
-import { setUserId, setUserName } from "../../store/authSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+    Button,
+    IconButton,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { login, signUp } from '../../services/authService';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -15,75 +17,83 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-    const dispatch = useDispatch();
     const [isSignUp, setIsSignUp] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
-    const userName = useSelector((state: RootState) => state.auth.userName);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+
     const resetError = () => setError(null);
+
+    const handleClose = () => {
+        resetError();
+        onClose();
+    };
 
     const handleLogin = async () => {
         try {
             resetError();
             const data = await login(email, password);
-            localStorage.setItem("token", data.token);
-            dispatch(setUserId(data.user.id));
-            dispatch(setUserName(data.user.name))
+            setAccessToken(data.token);
             onClose();
         } catch (err: any) {
-            setError("Failed to login. Please check your credentials.");
+            setError('Failed to login. Please check your credentials.');
         }
     };
 
     const handleSignUp = async () => {
         try {
             resetError();
-            const data = await signUp(name, password, email);
-            localStorage.setItem("token", data.token);
+            await signUp(name, email, password);
             setIsSignUp(false);
+            onClose();
         } catch (err: any) {
-            setError("Failed to register. Please try again.");
+            setError('Failed to register. Please try again.');
         }
     };
 
-    const handleLogOut = () => {
-        localStorage.removeItem("token");
-        dispatch(setUserId(null));
-        dispatch(setUserName(null));
-        navigate('/');
+    const handleLogout = () => {
+        setAccessToken(null);
+        onClose();
     };
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        return null;
+    }
+
+    const isLoggedIn = Boolean(accessToken);
 
     return (
-        <StyledBackdrop 
-            open={isOpen}
-            onClick={(e) => {
-                e.stopPropagation();
-                onClose()
-            }}
-            data-testid="login-modal"
-        >
-            <FloatingLogin onClick={(e) => e.stopPropagation()}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h6">
-                        {isSignUp ? "Sign Up" : userName ? `Welcome, ${userName}` : "Login"}
+        <Dialog open={isOpen} onClose={onClose} data-testid="login-modal">
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="h6">
+                    {isSignUp ? 'Sign Up' : isLoggedIn ? 'Welcome!' : 'Login'}
+                </Typography>
+                <IconButton size="small" onClick={handleClose}>
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+
+            <DialogContent>
+                {error && (
+                    <Typography color="error" paddingBottom="1rem" data-testid="login-error">
+                        {error}
                     </Typography>
-                    <IconButton size="small" onClick={onClose}>
-                        <CloseIcon />
-                    </IconButton>
-                </Box>
-                {error && (<Typography color="error" paddingBottom="1rem">{error}</Typography>)}
-                {userName ? (
-                    <Button variant="contained" color="secondary" fullWidth onClick={handleLogOut}>
+                )}
+
+                {isLoggedIn ? (
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        fullWidth
+                        onClick={handleLogout}
+                        data-testid="logout-button"
+                    >
                         Log Out
                     </Button>
-                ) : (
-                    (isSignUp ? (
+                ) : isSignUp ? (
                     <>
                         <TextField
                             label="Name"
@@ -116,15 +126,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                             }}
                             sx={{ mb: 2 }}
                         />
-                        <Button variant="contained" color="secondary" fullWidth onClick={handleSignUp}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            onClick={handleSignUp}
+                            data-testid="signup-button"
+                        >
                             Sign Up
                         </Button>
                         <Typography variant="body2" align="center" mt={2}>
-                            Already have an account?{" "}
+                            Already have an account?{' '}
                             <Button onClick={() => setIsSignUp(false)}>Login</Button>
                         </Typography>
                     </>
-                    ) : (
+                ) : (
                     <>
                         <TextField
                             label="Email"
@@ -147,18 +163,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                             }}
                             sx={{ mb: 2 }}
                         />
-                        <Button variant="contained" color="secondary" fullWidth onClick={handleLogin}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            onClick={handleLogin}
+                            data-testid="login-button"
+                        >
                             Login
                         </Button>
                         <Typography variant="body2" align="center" mt={2}>
-                            New user?{" "}
+                            New user?{' '}
                             <Button onClick={() => setIsSignUp(true)}>Sign Up</Button>
                         </Typography>
                     </>
-                    ))
                 )}
-            </FloatingLogin>
-        </StyledBackdrop>
+            </DialogContent>
+        </Dialog>
     );
 };
 
